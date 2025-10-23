@@ -1,17 +1,15 @@
 {
-  "domain": "bsk_zephyr_lan",
-  "name": "BSK Zephyr LAN",
   "codeowners": [
     "@davideciarmiello"
   ],
   "config_flow": true,
-  "dependencies": [],
   "documentation": "https://github.com/davideciarmiello/ha-bskzephyr-lan",
-  "homekit": {},
+  "domain": "bsk_zephyr_lan",
   "iot_class": "local_polling",
-  "quality_scale": "bronze",
-  "requirements": [ ],
-  "ssdp": [],
-  "zeroconf": [],
+  "issue_tracker": "https://github.com/davideciarmiello/ha-bskzephyr-lan/issues",
+  "loggers": [
+      "custom_components.bsk_zephyr_lan"
+  ],
+  "name": "BSK Zephyr LAN",
   "version": "1.0.0"
 }
