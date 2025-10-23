@@ -5,6 +5,7 @@
 2. Only tested on [BSK Zephyr v2](https://www.bskhvac.com.tr/en/product-detail/heat-recovery-units/zephyr-decentrelized-heat-recovery-device)
 3. Works only with device configured as Home Assistant Setup in BSK Connect application. In date 2025.10 this features is avaiable only if you request to enter in beta testing, and the configuration is avaiable only on Android App.
 4. You can configure as this [video tutorial](https://raw.githubusercontent.com/davideciarmiello/ha-bskzephyr-lan/refs/heads/main/docs/BSK_API_screen_record.mp4), after you can access at your device [web local page as this](https://raw.githubusercontent.com/davideciarmiello/ha-bskzephyr-lan/refs/heads/main/docs/BSK_API_local_page.png)
+5. If you have an old firmware, or you need a cloud version, use [Josh Anderson integration](https://github.com/andersonshatch/hass-bskzephyr)
 
 ## Requirements
 - Home Assistant version 2025.2 or newer
