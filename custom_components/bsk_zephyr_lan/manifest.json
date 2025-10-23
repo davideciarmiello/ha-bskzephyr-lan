@@ -10,7 +10,7 @@
   "homekit": {},
   "iot_class": "local_polling",
   "quality_scale": "bronze",
-  "requirements": [],
+  "requirements": [ ],
   "ssdp": [],
   "zeroconf": [],
   "version": "1.0.0"

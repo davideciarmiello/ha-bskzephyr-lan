@@ -3,16 +3,22 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from .coordinator import BSKDataUpdateCoordinator, async_setup_device_coordinator
+import logging
+
+from .coordinator import BSKDataUpdateCoordinator
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api.bsk_api import BSKZephyrLanClient, InvalidAuthError
+from .bsk_api import BSKZephyrLanClient, InvalidAuthError
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
+_LOGGER = logging.getLogger(__name__)
+
 _PLATFORMS: list[Platform] = [
+    Platform.BINARY_SENSOR,
+    Platform.FAN,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
@@ -41,16 +47,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: BSKZephyrConfigEntry) ->
     except InvalidAuthError as err:
         raise ConfigEntryAuthFailed("Credentials error from BSK Zephyr") from err
 
-    coordinator = await hass.async_create_task(
-        async_setup_device_coordinator(hass, entry, client)
-    )
+    coordinator = BSKDataUpdateCoordinator(hass, entry, client)
+    await coordinator.async_config_entry_first_refresh()
+
+    _LOGGER.debug("Setup device's coordinator")
+
     entry.runtime_data = BSKZephyrData(coordinator=coordinator)
 
     await hass.config_entries.async_forward_entry_setups(entry, _PLATFORMS)
 
-    return True
+    # Reload entry when its updated.
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
+    return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: BSKZephyrConfigEntry) -> bool:
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(entry, _PLATFORMS)
+
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry."""
+    """Reload the config entry when it changed."""
+    await hass.config_entries.async_reload(entry.entry_id)

@@ -1,6 +1,7 @@
 import logging
 from . import BSKZephyrConfigEntry
 from .coordinator import BSKDataUpdateCoordinator
+from .entity import BSKZephyrEntity
 from homeassistant.components.sensor import (
     EntityCategory,
     SensorDeviceClass,
@@ -13,6 +14,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.exceptions import HomeAssistantError
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,6 +48,27 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         entity_category=EntityCategory.DIAGNOSTIC,
         icon="mdi:cylinder",
     ),
+    SensorEntityDescription(
+        name="Wi-Fi SSID",
+        key="wifi_ssid",
+        icon="mdi:wifi",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        name="Wi-Fi RSSI",
+        key="wifi_rssi",
+        native_unit_of_measurement="dBm",
+        #icon="mdi:wifi-strength-3",
+        device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    SensorEntityDescription(
+        name="Wi-Fi IP",
+        key="wifi_ip",
+        icon="mdi:ip",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
 )
 
 
@@ -59,41 +82,11 @@ async def async_setup_entry(
         )
 
 
-class BSKZephyrSensor(SensorEntity, CoordinatorEntity[BSKDataUpdateCoordinator]):
-    def __init__(
-        self,
-        groupID: str,
-        coordinator: BSKDataUpdateCoordinator,
-        description: SensorEntityDescription,
-    ):
-        super().__init__(coordinator)
-
-        self._attr_unique_id = f"{groupID}-{description.key}"
-        self._attr_name = f"{coordinator.data[groupID].group_title} {description.name}"
-        self._attr_device_info = DeviceInfo(
-            connections={(CONNECTION_NETWORK_MAC, groupID)},
-            name=coordinator.data[groupID].group_title,
-            model=coordinator.data[groupID].device_model,
-            sw_version=coordinator.data[groupID].device_version,
-        )
-        self.coordinator = coordinator
-        self.groupID = groupID
-        self.entity_description = description
-
-    async def async_added_to_hass(self) -> None:
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._handle_coordinator_update)
-        )
-        self._handle_coordinator_update()
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self.native_value = getattr(
-            self.coordinator.data[self.groupID].device, self.entity_description.key
-        )
-        self.async_write_ha_state()
+class BSKZephyrSensor(BSKZephyrEntity, SensorEntity):
+    _attr_domain = "sensor"
+    def __init__(self, groupID: str, coordinator: BSKDataUpdateCoordinator, description: SensorEntityDescription):
+        super().__init__(groupID, coordinator, description)
 
     @property
     def state(self):
-        return self.native_value
+        return self.property_value

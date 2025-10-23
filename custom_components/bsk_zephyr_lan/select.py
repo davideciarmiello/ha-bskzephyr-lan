@@ -1,17 +1,23 @@
+import logging
+
 from . import BSKZephyrConfigEntry, BSKDataUpdateCoordinator
+from .entity import BSKZephyrEntity
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.exceptions import HomeAssistantError
 
-from .api.bsk_api import FanMode, FanSpeed
+from .bsk_api import FanMode, FanSpeed
+
+_LOGGER = logging.getLogger(__name__)
 
 SELECT_TYPES: tuple[SelectEntityDescription, ...] = (
     SelectEntityDescription(
-        name="Fan Mode", key="fanMode", options=[m.value for m in FanMode]
+        name="Fan Mode", key="operation_mode_enum", options=[m.name for m in FanMode]
     ),
     SelectEntityDescription(
-        name="Fan Speed", key="fanSpeed", options=[s.name for s in FanSpeed]
+        name="Fan Speed", key="fan_speed_enum", options=[s.name for s in FanSpeed]
     ),
 )
 
@@ -26,55 +32,25 @@ async def async_setup_entry(
         )
 
 
-class BSKZephyrSelect(SelectEntity, CoordinatorEntity[BSKDataUpdateCoordinator]):
+class BSKZephyrSelect(BSKZephyrEntity, SelectEntity):
+    _attr_domain = "select"
     def __init__(
         self,
         groupID: str,
         coordinator: BSKDataUpdateCoordinator,
         description: SelectEntityDescription,
     ):
-        super().__init__(coordinator)
-
-        self._attr_unique_id = f"{groupID}-{description.key}"
-        self._attr_name = f"{coordinator.data[groupID].group_title} {description.name}"
-        self._attr_device_info = DeviceInfo(
-            connections={(CONNECTION_NETWORK_MAC, groupID)},
-            name=coordinator.data[groupID].group_title,
-            model=coordinator.data[groupID].device_model,
-            sw_version=coordinator.data[groupID].device_version,
-        )
-        self.coordinator = coordinator
-        self.groupID = groupID
-        self.entity_description = description
-
-    async def async_added_to_hass(self) -> None:
-        self.async_on_remove(
-            self.coordinator.async_add_listener(self._handle_coordinator_update)
-        )
-        self._handle_coordinator_update()
-
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        self._attr_state = getattr(
-            self.coordinator.data[self.groupID].device, self.entity_description.key
-        )
-        self.async_write_ha_state()
+        super().__init__(groupID, coordinator, description)
 
     @property
     def state(self):
-        return self._attr_state.name
+        return self.property_value.name
 
     async def async_select_option(self, option: str) -> None:
-        self._attr_state = (self._attr_state.__class__)[option]
-
+        if option == self.state:
+            return  # niente da fare se è già selezionato
+        new_state = (self.property_value.__class__)[option]
         await self.coordinator.api.control_device(
-            self.groupID, **{self.entity_description.key: self._attr_state}
+            self.groupID, **{self.entity_description.key: new_state}
         )
-        await self.coordinator.async_request_refresh()
-
-        # setattr(self.coordinator.data[self.deviceID].settings, self.entity_description.key, self._attr_state)
-        # self.coordinator.data[self.deviceID].settings.deviceID = self.deviceID
-        # self.coordinator.data[self.deviceID].settings.groupID = self.coordinator.data[self.deviceID].groupID
-        # print(dict(self.coordinator.data[self.deviceID].settings))
-        # await self.coordinator.api.update_group_settings(dict(self.coordinator.data[self.deviceID].settings))
+        await self.coordinator.async_status_refresh()

@@ -1,9 +1,9 @@
 # BSK Zephyr Home Assistant integration LAN
 
 ## Important notes
-1. Unofficial integration using an undocumented API. May break at any time.
-1. Only works for [BSK Zephyr v2](https://www.bskhvac.com.tr/en/product-detail/heat-recovery-units/zephyr-decentrelized-heat-recovery-device) and [BSK Zephyr Mini v1](https://www.bskhvac.com.tr/en/product-detail/heat-recovery-units/zephyr-mini-decentralized-heat-recovery-device) devices registered in the BSK Connect app. If you are using the BSK Zephyr app, download BSK Connect, login with your existing account and register your device in BSK Connect.
-1. Works only with username and password. If you used Apple or Google login, create a new account with username and password and re-register your device / share it from your other account.
+1. Unofficial integration using direct connection in LAN.
+1. Only tested on [BSK Zephyr v2](https://www.bskhvac.com.tr/en/product-detail/heat-recovery-units/zephyr-decentrelized-heat-recovery-device) 1. Works only with device configured as Home Assistant Setup in BSK Connect application. In date 2025.10 this features is avaiable only if you request to enter in beta testing, and the configuration is avaiable only on Android App.
+1. You can configure as this [video tutorial](https://github.com/davideciarmiello/ha-bskzephyr-lan/docs/BSK_API_screen_record.mp4), after you can access at your device [web local page as this](https://github.com/davideciarmiello/ha-bskzephyr-lan/docs/BSK_API_local_page.mp4)
 
 ## Requirements
 - Home Assistant version 2025.2 or newer
@@ -12,26 +12,27 @@
 ## Installation
 
 ### With My Home Assistant
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=andersonshatch&repository=hass-bskzephyr&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=davideciarmiello&repository=ha-bskzephyr-lan&category=integration)
 1. Click the button above to add this repo as a custom HACS repo, confirming by pressing Add
 1. Press Download to add the integration
 
 ### Manually in HACS
-1. Navigate to HACS and add a custom repo ([steps](https://hacs.xyz/docs/faq/custom_repositories)) using repository: `andersonshatch/hass-bskzephyr`, type: `integration`
-2. Select the BSK Zephyr Connect integration which should appear under the New section
+1. Navigate to HACS and add a custom repo ([steps](https://hacs.xyz/docs/faq/custom_repositories)) using repository: `davideciarmiello/ha-bskzephyr-lan`, type: `integration`
+2. Select the `BSK Zephyr Connect Integration LAN` integration which should appear under the New section
 3. Press Download to add the integration
 
 ## Setup
 1. Navigate to Settings -> Devices & Services and press Add Integration
-2. Search for `BSK Zephyr`
-1. Enter your username and password and press Submit
+2. Search for `BSK Zephyr LAN`
+1. Enter your device IP.
 
 ## Entities
 This integration generates the following entities for each supported device:
+- Fan for control speed, presets, power and mode
 - Sensors for temperature, humidity, filter and capsule status
 - Selects for speed and mode
-- Switch for power
-- Number to control humidity boost (100% = humidity boost off)
+- Switch for power, buzzer and humidity boost
+- Number to control humidity boost
 
 ## Example dashboard
 

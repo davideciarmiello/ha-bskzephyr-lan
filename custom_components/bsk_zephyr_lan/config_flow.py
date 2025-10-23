@@ -12,7 +12,7 @@ from homeassistant.const import CONF_HOST
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api.bsk_api import BSKZephyrLanClient, InvalidAuthError
+from .bsk_api import BSKZephyrLanClient, InvalidAuthError
 
 from .const import DOMAIN
 
@@ -36,8 +36,6 @@ class SetupBSKZephyrLanConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            await self.async_set_unique_id(user_input[CONF_HOST])
-            self._abort_if_unique_id_configured()
 
             try:
                 client = BSKZephyrLanClient(
@@ -45,14 +43,17 @@ class SetupBSKZephyrLanConfigFlow(ConfigFlow, domain=DOMAIN):
                     user_input[CONF_HOST],
                 )
                 await client.login()
-            except InvalidAuthError:
-                errors["base"] = "invalid_auth"
-            except Exception:
+            except InvalidAuthError as e:
+                errors["base"] = str(e)
+            except Exception as e:
                 _LOGGER.exception("Unexpected exception")
-                errors["base"] = "unknown"
-            else:
+                errors["base"] = str(e)
+            else:                
+                await self.async_set_unique_id(client._raw_data["device_id"])
+                self._abort_if_unique_id_configured()
+                
                 return self.async_create_entry(
-                    title=user_input[CONF_HOST], data=user_input
+                    title=user_input[CONF_HOST] + " " + client._raw_data["device_id"], data=user_input
                 )
 
         return self.async_show_form(
