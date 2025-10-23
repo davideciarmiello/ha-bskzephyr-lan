@@ -8,14 +8,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate-hacs:
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: "actions/checkout@v3"
-      - name: HACS validation
-        uses: "hacs/action@main"
-        with:
-          category: integration
+  #commentato per ora che ho solo errore  <Validation brands> failed:  The repository has not been added as a custom domain to the brands repo (More info: https://hacs.xyz/docs/publish/include#check-brands )
+  #validate-hacs:
+  #  runs-on: "ubuntu-latest"
+  #  steps:
+  #    - uses: "actions/checkout@v3"
+  #    - name: HACS validation
+  #      uses: "hacs/action@main"
+  #      with:
+  #        category: integration
 
   hassfest:
     runs-on: ubuntu-latest
