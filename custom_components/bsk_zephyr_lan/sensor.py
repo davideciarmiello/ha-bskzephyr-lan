@@ -40,12 +40,14 @@ SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         name="Filter Status",
         key="filter_timer",
         entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:air-filter",
     ),
     SensorEntityDescription(
         name="Capsule Status",
         key="hygiene_status",
         entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:cylinder",
     ),
     SensorEntityDescription(

@@ -277,9 +277,9 @@ class BSKZephyrLanClient:
     
 
 def to_bool(value: str) -> bool:
-    if v == "0":
+    if value == "0":
         return False
-    if v == "1":
+    if value == "1":
         return True
     v = str(value).strip().lower()
     return v in ("1", "true", "on", "yes")
