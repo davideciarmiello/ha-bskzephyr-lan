@@ -35,7 +35,6 @@ This integration generates the following entities for each supported device:
 - Switch for power, buzzer and humidity boost
 - Number to control humidity boost
 
-
 ## Example dashboard
 
 <img width="481" alt="image" src="https://github.com/user-attachments/assets/98615435-5192-4581-b76a-a38e4556cf65" />
