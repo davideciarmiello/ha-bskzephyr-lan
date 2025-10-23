@@ -6,6 +6,9 @@ on:
 
   workflow_dispatch:  # permette esecuzione manuale dal tab "Actions"
 
+permissions:
+  contents: write
+  
 jobs:
   release_zip_file:
     name: Prepare release asset
