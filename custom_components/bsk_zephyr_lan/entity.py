@@ -9,6 +9,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
+from homeassistant.util import slugify
 
 from . import BSKZephyrConfigEntry, BSKDataUpdateCoordinator
 from .const import DOMAIN
@@ -31,12 +32,19 @@ class BSKZephyrEntity(CoordinatorEntity):
         self.device = coordinator.data[groupID]
         self.coordinator = coordinator
         self.groupID = groupID
-        self.entity_description = entity_description        
+        self.entity_description = entity_description
         if self._attr_domain is None:
             raise NotImplementedError(f"{self.__class__.__name__} must define _attr_domain")
         self._attr_unique_id = f"{DOMAIN}_{self._attr_domain}_{self.device.device_id}_{self.entity_description.key}"
+        self._attr_translation_key = slugify(self.entity_description.name)
         self._device_info = None  # sarà creato solo la prima volta
         self.property_value = None
+
+    # search traslations on https://github.com/home-assistant/core/tree/dev/homeassistant , searching in strings.json
+    # or in components/xxx/strings.json
+    @property
+    def translation_key(self):
+        return self._attr_translation_key
 
 
     async def async_added_to_hass(self) -> None:

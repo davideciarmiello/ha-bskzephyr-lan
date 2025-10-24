@@ -1,4 +1,45 @@
-{
+{  
+  "entity": {
+    "fan": {
+      "fan": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "night": "Night",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High"
+            }
+          },            
+          "direction": {
+            "state": {
+              "forward": "Extract",
+              "reverse": "Supply",
+              "cycle": "Cycle"
+            }
+          }
+        }
+      }
+    },
+    "select": {
+        "fan_mode": {
+            "state": {
+                "cycle": "Cycle",
+                "extract": "Extract",
+                "supply": "Supply"
+            }
+        },        
+        "fan_speed": {
+          "state": {
+              "night": "Night",
+              "low": "Low",
+              "medium": "Medium",
+              "high": "High"
+          }
+      }
+    }
+  },
+  
   "config": {
     "step": {
       "user": {

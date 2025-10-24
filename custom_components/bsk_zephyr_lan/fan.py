@@ -48,9 +48,9 @@ class BSKZephyrFan(BSKZephyrEntity, FanEntity):
     @property
     def current_direction(self):
         """Return the current direction."""
-        if self.device.operation_mode_enum == FanMode.Supply:
+        if self.device.operation_mode_enum == FanMode.extract:
             return DIRECTION_FORWARD
-        if self.device.operation_mode_enum == FanMode.Extract:
+        if self.device.operation_mode_enum == FanMode.supply:
             return DIRECTION_REVERSE
         return self.device.operation_mode_enum.name
 
@@ -65,13 +65,12 @@ class BSKZephyrFan(BSKZephyrEntity, FanEntity):
         if direction == self.current_direction:
             return
         if direction == DIRECTION_FORWARD:
-            direction = FanMode.Supply.name
+            direction = FanMode.extract.name
         if direction == DIRECTION_REVERSE:
-            direction = FanMode.Extract.name
+            direction = FanMode.supply.name
         if self.direction_list is None or direction not in self.direction_list:
             raise ValueError(f"{direction} is not a valid direction_mode: {self.direction_list}")
-        new_state = (self.device.operation_mode_enum.__class__)[direction]
-        await self.coordinator.api.control_device(self.groupID, operation_mode_enum=new_state)
+        await self.coordinator.api.control_device(self.groupID, operation_mode_enum=direction)
         await self.coordinator.async_status_refresh()
 
 
@@ -89,8 +88,7 @@ class BSKZephyrFan(BSKZephyrEntity, FanEntity):
             return
         if self.preset_modes is None or preset_mode not in self.preset_modes:
             raise ValueError(f"{preset_mode} is not a valid preset_mode: {self.preset_modes}")
-        new_state = (self.device.fan_speed_enum.__class__)[preset_mode]
-        await self.coordinator.api.control_device(self.groupID, fan_speed_enum=new_state)
+        await self.coordinator.api.control_device(self.groupID, fan_speed_enum=preset_mode)
         await self.coordinator.async_status_refresh()
 
 

@@ -20,16 +20,16 @@ class InvalidAuthError(ZephyrException):
 
 
 class FanMode(str, Enum):
-    Cycle = "cycle"
-    Extract = "extract"
-    Supply = "supply"
+    supply = "supply"
+    cycle = "cycle"
+    extract = "extract"
 
 
 class FanSpeed(str, Enum):
-    Night = "night"
-    Low = "low"
-    Medium = "medium"
-    High = "high"
+    night = "night"
+    low = "low"
+    medium = "medium"
+    high = "high"
 
 
 class ZephyrDevice(BaseModel):
@@ -253,13 +253,13 @@ class BSKZephyrLanClient:
     async def _set_operation_mode(self, groupID: str, mode: FanMode | str):
         if isinstance(mode, str):
             mode = parse_fan_mode(mode)
-        if mode == FanMode.Cycle:
+        if mode == FanMode.cycle:
             await self._post("/cycle")
             self._raw_data["operation_mode"] = "cycle"
-        if mode == FanMode.Supply:
+        if mode == FanMode.supply:
             await self._post("/intake")
             self._raw_data["operation_mode"] = "intake"
-        if mode == FanMode.Extract:
+        if mode == FanMode.extract:
             await self._post("/exhaust")
             self._raw_data["operation_mode"] = "exhaust"
 
@@ -286,48 +286,52 @@ def to_bool(value: str) -> bool:
 
 
 def fan_speed_to_speed_value(speed: FanSpeed) -> int:
-    if speed == FanSpeed.High:
+    if speed == FanSpeed.high:
         return 80
-    if speed == FanSpeed.Medium:
+    if speed == FanSpeed.medium:
         return 55
-    if speed == FanSpeed.Low:
+    if speed == FanSpeed.low:
         return 30
     return 22        
 
 def fan_speed_value_to_enum(speed: int) -> FanSpeed:
     if (speed >= 80):
-        return FanSpeed.High
+        return FanSpeed.high
     if (speed >= 55):
-        return FanSpeed.Medium
+        return FanSpeed.medium
     if (speed >= 30):
-        return FanSpeed.Low
+        return FanSpeed.low
     if (speed >= 22):
-        return FanSpeed.Night
-    return FanSpeed.Night
+        return FanSpeed.night
+    return FanSpeed.night
 
-def parse_fan_speed(speed: str) -> FanSpeed:
+def parse_fan_speed(speed: str, raiseError = True) -> FanSpeed:
     for mode in FanSpeed:
-        if v == mode.value or v == mode.name:
+        if speed == mode.value or speed == mode.name:
             return mode
     v = speed.strip().lower()  # normalizza input
     for mode in FanSpeed:
         if v == mode.value.lower() or v == mode.name.lower():
             return mode
-    return FanSpeed.Night
+    if raiseError:
+        raise Exception(f"Option {speed} is not valid for FanSpeed, valid options are: {[m.name for m in FanSpeed]}")
+    return None
 
-def parse_fan_mode(value: str) -> FanMode:
+def parse_fan_mode(value: str, raiseError = True) -> FanMode:
     """
     Converte una stringa in FanMode enum.
     Se non corrisponde, ritorna un default (cycle).
     """
     v = value.strip().lower()  # normalizza input
     if v == "cycle":
-        return FanMode.Cycle
+        return FanMode.cycle
     if v in ("intake", "supply"):
-        return FanMode.Supply
+        return FanMode.supply
     if v in ("exhaust", "extract"):
-        return FanMode.Extract
+        return FanMode.extract
     for mode in FanMode:
         if v == mode.value:
-            return mode
-    return FanMode.Cycle  # default
+            return mode    
+    if raiseError:
+        raise Exception(f"Option {value} is not valid for FanMode, valid options are: {[m.name for m in FanMode]}")
+    return None

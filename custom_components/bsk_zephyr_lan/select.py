@@ -49,8 +49,7 @@ class BSKZephyrSelect(BSKZephyrEntity, SelectEntity):
     async def async_select_option(self, option: str) -> None:
         if option == self.state:
             return  # niente da fare se è già selezionato
-        new_state = (self.property_value.__class__)[option]
         await self.coordinator.api.control_device(
-            self.groupID, **{self.entity_description.key: new_state}
+            self.groupID, **{self.entity_description.key: option}
         )
         await self.coordinator.async_status_refresh()

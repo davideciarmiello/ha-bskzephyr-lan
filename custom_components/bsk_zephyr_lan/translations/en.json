@@ -1,4 +1,65 @@
 {
+    "entity": {
+      "fan": {
+        "fan": {
+          "state_attributes": {
+            "preset_mode": {
+              "state": {
+                "night": "Night",
+                "low": "Low",
+                "medium": "Medium",
+                "high": "High"
+              }
+            },
+              
+            "direction": {
+              "state": {
+                "forward": "Supply",
+                "reverse": "Extract",
+                "cycle": "Cycle"
+              }
+            }
+          }
+        }
+      },
+      "select": {
+          "fan_mode": {
+              "state": {
+                  "cycle": "Cycle",
+                  "extract": "Extract",
+                  "supply": "Supply"
+              }
+          },        
+          "fan_speed": {
+            "state": {
+                "night": "Night",
+                "low": "Low",
+                "medium": "Medium",
+                "high": "High"
+            }
+        }
+      }
+    },
+    "entity_component": {
+      "_": {
+        "state": {
+          "night": "Night",
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        },
+        "state_attributes": {
+          "direction": {
+            "state": {
+              "forward": "Supply",
+              "reverse": "Extract",
+              "cycle": "Cycle"
+            }
+          }
+        }
+      }
+    },
+    
     "config": {
         "abort": {
             "already_configured": "Device is already configured"
