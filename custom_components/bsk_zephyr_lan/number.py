@@ -15,7 +15,7 @@ NUMBER_TYPES: tuple[NumberEntityDescription, ...] = (
         name="Humidity Boost",
         key="humidity_boost_level",
         native_min_value=35,
-        native_max_value=50,
+        native_max_value=100,
         native_unit_of_measurement=PERCENTAGE,
         icon="mdi:water-percent",
     ),

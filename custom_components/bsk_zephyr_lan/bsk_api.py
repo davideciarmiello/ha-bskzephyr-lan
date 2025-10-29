@@ -184,8 +184,8 @@ class BSKZephyrLanClient:
             data["fan_speed_enum"] = fan_speed_value_to_enum(int(data["fan_speed"]))
             data["operation_mode_enum"] = parse_fan_mode(data["operation_mode"])
 
-            self.persistent_data["humidity_boost_level_max"] = self.HUMID_BOOST_DISABLED_LEVEL - 1
-
+            self.persistent_data["humidity_boost_level_max"] = 100 # self.HUMID_BOOST_DISABLED_LEVEL - 1
+            
             #save or restore the last value
             data["humidity_boost_enabled"] = data.get("humidity_boost_level_raw", 100) < self.HUMID_BOOST_DISABLED_LEVEL
             if data["humidity_boost_enabled"]:
@@ -234,7 +234,9 @@ class BSKZephyrLanClient:
                 await self._set_humidity_boost_level(groupID, self.HUMID_BOOST_DISABLED_LEVEL)
             if humidity_boost_level is not None:
                 if humidity_boost_level >= self.HUMID_BOOST_DISABLED_LEVEL:
-                    raise Exception(f"humidity_boost_level value {humidity_boost_level} not allowed. Max is {self.HUMID_BOOST_DISABLED_LEVEL - 1}")
+                    if self._raw_data["humidity_boost_enabled"]:
+                        await self._set_humidity_boost_level(groupID, self.HUMID_BOOST_DISABLED_LEVEL)
+                    #raise Exception(f"humidity_boost_level value {humidity_boost_level} not allowed. Max is {self.HUMID_BOOST_DISABLED_LEVEL - 1}")
                 if self._raw_data["humidity_boost_enabled"]:
                     await self._set_humidity_boost_level(groupID, humidity_boost_level)
                 else:
@@ -265,11 +267,18 @@ class BSKZephyrLanClient:
 
 
     async def _set_humidity_boost_level(self, groupID: str, level: int):
+        if level >= self.HUMID_BOOST_DISABLED_LEVEL:
+            level = self.HUMID_BOOST_DISABLED_LEVEL
         await self._post("/humid", {"level": level})
+        old_level = self._raw_data["humidity_boost_level_raw"]
+        if old_level < self.HUMID_BOOST_DISABLED_LEVEL:
+            self.persistent_data["humidity_boost_level_last"] = old_level
+            self._raw_data["humidity_boost_level"] = old_level + 1 if old_level < 50 else old_level - 1
         self._raw_data["humidity_boost_level_raw"] = level
+        self._raw_data["humidity_boost_enabled"] = level < self.HUMID_BOOST_DISABLED_LEVEL
         #version 3.1.5 bug changing humidy set point, not stop boost_running
         if (self._raw_data["humidity_boost_running"]
-            and self._check_version("3.1.5") and self._raw_data["power"]
+            #and self._check_version("3.1.5") and self._raw_data["power"]
             and level > self._raw_data["humidity"]):
             await self._post("/off")
             await self._post("/on")
