@@ -1,6 +1,6 @@
 {
     "name": "BSK Zephyr Connect Integration LAN",
-    "homeassistant": "2025.2.0b0",    
+    "homeassistant": "2026.11.0",    
     "render_readme": true,
     "zip_release": true,
     "filename": "bsk_zephyr_lan.zip"
